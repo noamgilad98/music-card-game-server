@@ -3,8 +3,7 @@ package com.example.musicgame.test.integration;
 import com.example.musicgame.model.Game;
 import com.example.musicgame.model.User;
 import com.example.musicgame.model.GameState;
-import com.example.musicgame.repository.GameRepository;
-import com.example.musicgame.repository.UserRepository;
+import com.example.musicgame.repository.*;
 import com.example.musicgame.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IntegrationTest {
@@ -37,22 +37,35 @@ public class IntegrationTest {
     private GameRepository gameRepository;
 
     @Autowired
+    private TimeLineRepository timeLineRepository;
+
+    @Autowired
+    private CardRepository cardRepository;
+
+    @Autowired
+    private DeckRepository deckRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
     private UserService userService;
 
     private RestTemplate restTemplate;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
-        gameRepository.deleteAll();
         this.restTemplate = new RestTemplate();
     }
 
     @Test
     public void testUserRegistrationAndGameFlow() {
         // Register users
-        User user1 = new User("user1", "password1");
-        User user2 = new User("user2", "password2");
+        //random username
+        Random rand = new Random();
+        int upperbound = 1000000;
+        User user1 = new User("user" + rand.nextInt(upperbound), "password1");
+        User user2 = new User("user" + rand.nextInt(upperbound), "password2");
         ResponseEntity<String> response1 = registerUser(user1);
         ResponseEntity<String> response2 = registerUser(user2);
 

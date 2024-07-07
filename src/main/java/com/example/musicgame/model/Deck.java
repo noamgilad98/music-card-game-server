@@ -2,6 +2,7 @@ package com.example.musicgame.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -11,10 +12,19 @@ public class Deck {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL)
-    private Set<DeckCard> deckCards = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "deck_card",
+            joinColumns = @JoinColumn(name = "deck_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
+    )
+    private Set<Card> cards = new HashSet<>();
 
     public Deck() {
+    }
+
+    public Deck(Set<Card> cards) {
+        this.cards = cards;
     }
 
     public Long getId() {
@@ -25,31 +35,22 @@ public class Deck {
         this.id = id;
     }
 
-    public Set<DeckCard> getDeckCards() {
-        return deckCards;
+    public Set<Card> getCards() {
+        return cards;
     }
 
-    public void setDeckCards(Set<DeckCard> deckCards) {
-        this.deckCards = deckCards;
+    public void setCards(Set<Card> deckCards) {
+        this.cards = deckCards;
     }
 
-    public void addCard(Card card) {
-        DeckCard deckCard = new DeckCard(this, card);
-        deckCards.add(deckCard);
-    }
 
-    public void removeCard(Card card) {
-        deckCards.removeIf(deckCard -> deckCard.getCard().equals(card));
-    }
 
     public Card drawCard() {
-        if (deckCards.isEmpty()) {
+        if (cards.isEmpty()) {
             throw new RuntimeException("Deck is empty");
         }
-
-        DeckCard deckCard = deckCards.iterator().next();
-        deckCards.remove(deckCard);
-
-        return deckCard.getCard();
+        Card card = cards.iterator().next();
+        cards.remove(card);
+        return card;
     }
 }

@@ -2,13 +2,13 @@ package com.example.musicgame.service;
 
 import com.example.musicgame.model.Card;
 import com.example.musicgame.model.Deck;
-import com.example.musicgame.model.DeckCard;
-import com.example.musicgame.repository.DeckCardRepository;
+import com.example.musicgame.repository.CardRepository;
 import com.example.musicgame.repository.DeckRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class DeckService {
@@ -17,19 +17,16 @@ public class DeckService {
     private DeckRepository deckRepository;
 
     @Autowired
-    private DeckCardRepository deckCardRepository;
-
-    @Autowired
     private CardService cardService;
+    @Autowired
+    private CardRepository cardRepository;
+
 
     public Deck createDeck(List<Card> cards) {
-        Deck deck = new Deck();
+        //convert to set
+        Set<Card> cardSet = Set.copyOf(cards);
+        Deck deck = new Deck(cardSet);
         deckRepository.save(deck);
-
-        for (Card card : cards) {
-            DeckCard deckCard = new DeckCard(deck, card);
-            deckCardRepository.save(deckCard);
-        }
 
         return deck;
     }
