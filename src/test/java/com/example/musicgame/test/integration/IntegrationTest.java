@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IntegrationTest {
@@ -54,25 +55,17 @@ public class IntegrationTest {
 
     @BeforeEach
     void setUp() {
-//        // Delete entries from join tables or associations first
-//        timeLineRepository.deleteAll();
-//        gameRepository.deleteAll();
-//        deckRepository.deleteAll();
-//        playerRepository.deleteAll();
-//
-//        // Delete cards and users last
-//        //cardRepository.deleteAll();
-//        userRepository.deleteAll();
-//
-//        System.out.println("Existing data deleted successfully.");
         this.restTemplate = new RestTemplate();
     }
 
     @Test
     public void testUserRegistrationAndGameFlow() {
         // Register users
-        User user1 = new User("user1", "password1");
-        User user2 = new User("user2", "password2");
+        //random username
+        Random rand = new Random();
+        int upperbound = 1000000;
+        User user1 = new User("user" + rand.nextInt(upperbound), "password1");
+        User user2 = new User("user" + rand.nextInt(upperbound), "password2");
         ResponseEntity<String> response1 = registerUser(user1);
         ResponseEntity<String> response2 = registerUser(user2);
 
