@@ -1,6 +1,8 @@
 package com.example.musicgame.model;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Card {
@@ -14,6 +16,10 @@ public class Card {
     private String songTitle;
     private String spotifyTrackId;
     private int year;
+
+    @ManyToMany(mappedBy = "cards")
+    private Set<Deck> decks = new HashSet<>();
+
 
     public Card() {
     }

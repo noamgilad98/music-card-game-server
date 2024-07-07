@@ -1,17 +1,18 @@
 package com.example.musicgame.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
+@Table(name = "game")
 public class Game {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "deck_id")
+    @JoinColumn(name = "deck_id", nullable = false)
     private Deck deck;
 
     @Enumerated(EnumType.STRING)
@@ -23,7 +24,7 @@ public class Game {
             joinColumns = @JoinColumn(name = "game_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id")
     )
-    private List<Player> players;
+    private Set<Player> players = new HashSet<>();
 
     public Game() {
     }
@@ -31,7 +32,7 @@ public class Game {
     public Game(Deck deck, GameState gameState) {
         this.deck = deck;
         this.gameState = gameState;
-        this.players = new ArrayList<>();
+        this.players = new LinkedHashSet<>();
     }
 
     public Long getId() {
@@ -58,11 +59,11 @@ public class Game {
         this.gameState = gameState;
     }
 
-    public List<Player> getPlayers() {
+    public Set<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<Player> players) {
+    public void setPlayers(Set<Player> players) {
         this.players = players;
     }
 
