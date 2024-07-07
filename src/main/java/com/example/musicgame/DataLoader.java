@@ -5,6 +5,7 @@ import com.example.musicgame.repository.*;
 import com.example.musicgame.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,20 +42,27 @@ public class DataLoader implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
 
     @Override
     public void run(String... args) throws Exception {
         deleteExistingData();
-        initAllData();
+        //initAllData();
+        setCards();
     }
 
     private void deleteExistingData() {
         // Delete entries from join tables or associations first
+        // Deleting references from the join table first
+        jdbcTemplate.update("DELETE FROM game_player");
+
+        playerRepository.deleteAll();
         timeLineRepository.deleteAll();
         gameRepository.deleteAll();
         deckRepository.deleteAll();
-        playerRepository.deleteAll();
 
         // Delete cards and users last
         cardRepository.deleteAll();
@@ -62,6 +70,9 @@ public class DataLoader implements CommandLineRunner {
 
         System.out.println("Existing data deleted successfully.");
     }
+
+
+
 
     private void initAllData() {
         // Users
@@ -71,7 +82,8 @@ public class DataLoader implements CommandLineRunner {
         userRepository.saveAll(List.of(user1, user2, user3));
 
         // Cards
-        setCards();
+        //setCards();
+
         List<Card> cards = cardRepository.findAll();
 
         // Decks

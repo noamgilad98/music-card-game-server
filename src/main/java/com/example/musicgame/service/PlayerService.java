@@ -2,6 +2,7 @@ package com.example.musicgame.service;
 
 import com.example.musicgame.model.Game;
 import com.example.musicgame.model.Player;
+import com.example.musicgame.model.User;
 import com.example.musicgame.repository.GameRepository;
 import com.example.musicgame.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,8 @@ public class PlayerService {
         playerRepository.save(player);
     }
 
-    public Player createPlayer(String name) {
-        Player player = new Player(name);
-        player.setName(name);
-
+    public Player createPlayer(User user) {
+        Player player = new Player(user);
         return playerRepository.save(player);
     }
 }

@@ -3,8 +3,7 @@ package com.example.musicgame.test.integration;
 import com.example.musicgame.model.Game;
 import com.example.musicgame.model.User;
 import com.example.musicgame.model.GameState;
-import com.example.musicgame.repository.GameRepository;
-import com.example.musicgame.repository.UserRepository;
+import com.example.musicgame.repository.*;
 import com.example.musicgame.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,14 +36,35 @@ public class IntegrationTest {
     private GameRepository gameRepository;
 
     @Autowired
+    private TimeLineRepository timeLineRepository;
+
+    @Autowired
+    private CardRepository cardRepository;
+
+    @Autowired
+    private DeckRepository deckRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
     private UserService userService;
 
     private RestTemplate restTemplate;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
-        gameRepository.deleteAll();
+//        // Delete entries from join tables or associations first
+//        timeLineRepository.deleteAll();
+//        gameRepository.deleteAll();
+//        deckRepository.deleteAll();
+//        playerRepository.deleteAll();
+//
+//        // Delete cards and users last
+//        //cardRepository.deleteAll();
+//        userRepository.deleteAll();
+//
+//        System.out.println("Existing data deleted successfully.");
         this.restTemplate = new RestTemplate();
     }
 

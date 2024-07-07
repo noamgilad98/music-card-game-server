@@ -64,13 +64,19 @@ public class GameService {
     }
 
     public Game addPlayerToGame(Long gameId, User user) {
+        // Check if the user already exists
+        Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+        } else {
+            user = userRepository.save(user);
+        }
+
         Game game = getGameById(gameId);
-        Player player = playerService.createPlayer(user.getUsername()); // Create player
-        playerRepository.save(player);
+        Player player = playerService.createPlayer(user); // Create player
         game.addPlayer(player);
         return gameRepository.save(game);
     }
-
     public Game endGame(Long gameId) {
         Game game = getGameById(gameId);
         game.setGameState(GameState.ENDED);
