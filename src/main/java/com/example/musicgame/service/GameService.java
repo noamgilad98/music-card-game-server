@@ -9,7 +9,6 @@ import com.example.musicgame.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,11 +42,11 @@ public class GameService {
     public Game createGame(String token) {
         String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-
+        Player player = playerService.createPlayer(user);
         Deck deck = deckService.createDeck(cardRepository.findAll());
-        Game createdGame = new Game(deck, GameState.CREATED);
+        Game createdGame = new Game(deck, GameState.CREATED, player);
         gameRepository.save(createdGame);
-        addPlayerToGame(createdGame.getId(), user);
+        createdGame.addPlayer(player);
         return gameRepository.save(createdGame);
     }
 
@@ -77,6 +76,7 @@ public class GameService {
         game.addPlayer(player);
         return gameRepository.save(game);
     }
+
     public Game endGame(Long gameId) {
         Game game = getGameById(gameId);
         game.setGameState(GameState.ENDED);

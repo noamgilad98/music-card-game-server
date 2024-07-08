@@ -26,13 +26,18 @@ public class Game {
     )
     private Set<Player> players = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private Player creator;
+
     public Game() {
     }
 
-    public Game(Deck deck, GameState gameState) {
+    public Game(Deck deck, GameState gameState, Player creator) {
         this.deck = deck;
         this.gameState = gameState;
         this.players = new LinkedHashSet<>();
+        this.creator = creator;
     }
 
     public Long getId() {
@@ -57,6 +62,14 @@ public class Game {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public Player getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Player creator) {
+        this.creator = creator;
     }
 
     public Set<Player> getPlayers() {

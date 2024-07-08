@@ -46,8 +46,8 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        deleteExistingData();
-        setCards();
+        //deleteExistingData();
+        //setCards();
     }
 
     public void deleteExistingData() {
