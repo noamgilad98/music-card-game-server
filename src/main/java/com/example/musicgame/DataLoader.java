@@ -47,7 +47,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         //deleteExistingData();
-        //setCards();
+        setCards();
     }
 
     public void deleteExistingData() {
@@ -88,6 +88,10 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void setCards() {
+        if (cardRepository.count() > 0) {
+            logger.info("Cards have already been set.");
+            return;
+        }
         List<Card> cards = List.of(
                 new Card("Bebe Rexha", "https://p.scdn.co/mp3-preview/fa4d66e50c72c03ced38f802adf41e44cad2c2e4?cid=909cdedbe38145d7a5848f6d36392b69", "Meant to Be (feat. Florida Georgia Line)", "spotify:track:7iDa6hUg2VgEL1o1HjmfBn", 2017),
                 new Card("Travis Scott", "https://p.scdn.co/mp3-preview/387b31c31b72f0c16e33d0c78bab869b0a0f4eb3?cid=909cdedbe38145d7a5848f6d36392b69", "HIGHEST IN THE ROOM", "spotify:track:3eekarcy7kvN4yt5ZFzltW", 2019),

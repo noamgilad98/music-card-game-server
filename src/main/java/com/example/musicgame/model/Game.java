@@ -30,6 +30,13 @@ public class Game {
     @JoinColumn(name = "creator_id", nullable = false)
     private Player creator;
 
+    @ManyToOne
+    @JoinColumn(name = "current_player_id")
+    private Player currentPlayer;
+
+    private int currentPlayerIndex;
+
+
     public Game() {
     }
 
@@ -84,5 +91,17 @@ public class Game {
         if (this.players.contains(player))
             throw new RuntimeException("Player already in game");
         this.players.add(player);
+        if (this.players.size() == 1) {
+            this.currentPlayer = player;
+        }
+    }
+
+    public Player getNextPlayer() {
+        if (players.isEmpty()) {
+            return null;
+        }
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        currentPlayer = players.stream().skip(currentPlayerIndex).findFirst().get();
+        return currentPlayer;
     }
 }

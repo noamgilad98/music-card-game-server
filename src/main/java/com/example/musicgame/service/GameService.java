@@ -36,6 +36,7 @@ public class GameService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
     @Autowired
     private CardService cardService;
 
@@ -87,7 +88,7 @@ public class GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
 
-        Player player = game.getPlayers().stream()
+        game.getPlayers().stream()
                 .filter(p -> p.getId().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Player not found"));
@@ -134,11 +135,7 @@ public class GameService {
             return false;
         }
 
-        if (nextCard != null && nextCard.getYear() < card.getYear()) {
-            return false;
-        }
-
-        return true;
+        return nextCard == null || nextCard.getYear() >= card.getYear();
     }
 
     public List<Game> getAllGames() {
