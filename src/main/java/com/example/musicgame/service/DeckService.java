@@ -23,11 +23,9 @@ public class DeckService {
 
 
     public Deck createDeck(List<Card> cards) {
-        //convert to set
         Set<Card> cardSet = Set.copyOf(cards);
         Deck deck = new Deck(cardSet);
         deckRepository.save(deck);
-
         return deck;
     }
 
@@ -36,6 +34,7 @@ public class DeckService {
     }
 
     public void deleteDeck(Long deckId) {
+
         deckRepository.deleteById(deckId);
     }
 }

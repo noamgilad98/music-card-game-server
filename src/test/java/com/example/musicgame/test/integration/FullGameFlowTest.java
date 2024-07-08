@@ -50,17 +50,6 @@ public class FullGameFlowTest {
 
     @BeforeEach
     void setUp() {
-        // Clear all cards related to decks first to avoid constraint violation
-        cardRepository.findAll().forEach(card -> {
-            cardRepository.save(card);
-        });
-
-        // Delete all users, games, decks, and cards
-        userRepository.deleteAll();
-        gameRepository.deleteAll();
-        deckRepository.deleteAll();
-        cardRepository.deleteAll();
-
         this.restTemplate = new RestTemplate();
     }
 

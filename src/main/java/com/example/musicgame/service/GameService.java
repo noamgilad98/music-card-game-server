@@ -64,7 +64,6 @@ public class GameService {
     }
 
     public Game addPlayerToGame(Long gameId, User user) {
-        // Check if the user already exists
         Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
         if (existingUser.isPresent()) {
             user = existingUser.get();
@@ -134,11 +133,7 @@ public class GameService {
             return false;
         }
 
-        if (nextCard != null && nextCard.getYear() < card.getYear()) {
-            return false;
-        }
-
-        return true;
+        return nextCard == null || nextCard.getYear() >= card.getYear();
     }
 
     public List<Game> getAllGames() {

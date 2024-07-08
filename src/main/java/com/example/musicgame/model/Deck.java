@@ -43,8 +43,6 @@ public class Deck {
         this.cards = deckCards;
     }
 
-
-
     public Card drawCard() {
         if (cards.isEmpty()) {
             throw new RuntimeException("Deck is empty");

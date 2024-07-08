@@ -38,7 +38,6 @@ public class Player {
         this.timeLine = new TimeLine();
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -74,8 +73,6 @@ public class Player {
     public User getUser() {
         return user;
     }
-
-
 
     public void addCardToTimeline(Card card, int position) {
         timeLine.addCardAtPosition(card, position);

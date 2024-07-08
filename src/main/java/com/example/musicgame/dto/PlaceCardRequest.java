@@ -8,17 +8,14 @@ public class PlaceCardRequest {
     private Card card;
     private int position;
 
-    // Default constructor
     public PlaceCardRequest() {}
 
-    // Parameterized constructor
     public PlaceCardRequest(Player player, Card card, int position) {
         this.player = player;
         this.card = card;
         this.position = position;
     }
 
-    // Getters and setters
     public Player getPlayer() {
         return player;
     }

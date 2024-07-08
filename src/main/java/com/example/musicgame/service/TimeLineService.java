@@ -18,6 +18,4 @@ public class TimeLineService {
     public TimeLine getTimeLineById(Long id) {
         return timeLineRepository.findById(id).orElseThrow(() -> new RuntimeException("Timeline not found"));
     }
-
-    // Other service methods as needed
 }

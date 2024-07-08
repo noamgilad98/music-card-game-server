@@ -107,6 +107,8 @@ public class IntegrationTest {
 
         assertThat(gameStatusResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(Objects.requireNonNull(gameStatusResponse.getBody()).getPlayers().size()).isEqualTo(2);
+
+
     }
 
     private ResponseEntity<String> registerUser(User user) {

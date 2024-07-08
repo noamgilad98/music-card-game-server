@@ -20,7 +20,6 @@ public class TimeLine {
     )
     private List<Card> cards = new ArrayList<>();
 
-
     public TimeLine() {
     }
 
@@ -28,7 +27,6 @@ public class TimeLine {
         this.cards = cards;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -44,7 +42,6 @@ public class TimeLine {
     public void setCards(List<Card> cards) {
         this.cards = cards;
     }
-
 
     public void addCardAtPosition(Card card, int position) {
         if (position < 0 || position > cards.size()) {

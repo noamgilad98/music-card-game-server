@@ -185,7 +185,6 @@ public class Track {
         private String uri;
         private Artist[] artists;
 
-        // Getters and setters
         public String getAlbum_type() {
             return album_type;
         }
