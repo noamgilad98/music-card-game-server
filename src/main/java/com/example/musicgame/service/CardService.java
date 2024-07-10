@@ -1,11 +1,10 @@
 package com.example.musicgame.service;
 
+import com.example.musicgame.dto.model.CardDTO;
 import com.example.musicgame.model.Card;
 import com.example.musicgame.repository.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class CardService {
@@ -24,5 +23,15 @@ public class CardService {
 
     public void deleteCard(Long cardId) {
         cardRepository.deleteById(cardId);
+    }
+
+
+    public CardDTO convertToDTO(Card card) {
+        CardDTO cardDTO = new CardDTO();
+        cardDTO.setId(card.getId());
+        cardDTO.setArtist(card.getArtist());
+        cardDTO.setSongTitle(card.getSongTitle());
+        cardDTO.setYear(card.getYear());
+        return cardDTO;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.musicgame.test.integration;
 
-import com.example.musicgame.dto.PlaceCardRequest;
+import com.example.musicgame.dto.request.PlaceCardRequest;
 import com.example.musicgame.model.*;
 import com.example.musicgame.repository.CardRepository;
 import com.example.musicgame.repository.DeckRepository;

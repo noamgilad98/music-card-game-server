@@ -104,4 +104,19 @@ public class Game {
         currentPlayer = players.stream().skip(currentPlayerIndex).findFirst().get();
         return currentPlayer;
     }
+
+    public void setCurrentPlayer(Player next) {
+    }
+
+    public User getCurrentPlayer() {
+        return null;
+    }
+
+    public Map<Long, List<Card>> getTimelines() {
+        Map<Long, List<Card>> timelines = new HashMap<>();
+        for (Player player : players) {
+            timelines.put(player.getId(), player.getTimeline());
+        }
+        return timelines;
+    }
 }

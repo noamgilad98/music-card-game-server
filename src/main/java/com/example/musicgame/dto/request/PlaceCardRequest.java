@@ -1,4 +1,4 @@
-package com.example.musicgame.dto;
+package com.example.musicgame.dto.request;
 
 import com.example.musicgame.model.Card;
 import com.example.musicgame.model.Player;

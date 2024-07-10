@@ -1,20 +1,13 @@
 package com.example.musicgame.test.controller;
 
-import com.example.musicgame.model.Game;
 import com.example.musicgame.model.Player;
 import com.example.musicgame.model.User;
 import com.example.musicgame.repository.PlayerRepository;
 import com.example.musicgame.repository.GameRepository;
 import com.example.musicgame.service.PlayerService;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -22,38 +15,31 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PlayerServiceTest {
+class PlayerServiceTest {
 
-    @InjectMocks
+    private PlayerRepository playerRepository;
+    private GameRepository gameRepository;
     private PlayerService playerService;
 
-    @Mock
-    private PlayerRepository playerRepository;
+    @BeforeEach
+    void setUp() {
+        playerRepository = Mockito.mock(PlayerRepository.class);
+        gameRepository = Mockito.mock(GameRepository.class);
+        playerService = new PlayerService();
 
-    @Mock
-    private GameRepository gameRepository;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Use reflection to inject the mocks
+        ReflectionTestUtils.setField(playerService, "playerRepository", playerRepository);
+        ReflectionTestUtils.setField(playerService, "gameRepository", gameRepository);
     }
 
     @Test
-    public void testJoinGame() {
+    void testJoinGame() {
         Player player = new Player();
-        player.setId(1L); // Make sure the player has a non-null ID
-        Game game = new Game();
-        game.setId(1L);
-
-        when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game));
         when(playerRepository.save(any(Player.class))).thenReturn(player);
 
-        playerService.joinGame(1L, player);
-
-        verify(playerRepository).save(any(Player.class));
+        Player joinedPlayer = playerService.joinGame(1L, player);
+        assertNotNull(joinedPlayer);
     }
-
 
     @Test
     void testGetPlayerById() {

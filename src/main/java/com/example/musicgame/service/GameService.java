@@ -1,9 +1,11 @@
 package com.example.musicgame.service;
 
+import com.example.musicgame.dto.model.CardDTO;
+import com.example.musicgame.dto.response.GamePlacementResult;
 import com.example.musicgame.model.*;
+import com.example.musicgame.repository.CardRepository;
 import com.example.musicgame.repository.GameRepository;
 import com.example.musicgame.repository.PlayerRepository;
-import com.example.musicgame.repository.CardRepository;
 import com.example.musicgame.repository.UserRepository;
 import com.example.musicgame.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,21 +59,12 @@ public class GameService {
 
     public Game startGame(Long gameId) {
         Game game = getGameById(gameId);
-        Deck deck = deckService.createDeck(cardRepository.findAll());
         game.setGameState(GameState.STARTED);
-        game.setDeck(deck);
+        game.setCurrentPlayer(game.getPlayers().iterator().next());
         return gameRepository.save(game);
     }
 
     public Game addPlayerToGame(Long gameId, User user) {
-        // Check if the user already exists
-        Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
-        if (existingUser.isPresent()) {
-            user = existingUser.get();
-        } else {
-            user = userRepository.save(user);
-        }
-
         Game game = getGameById(gameId);
         Player player = playerService.createPlayer(user); // Create player
         game.addPlayer(player);
@@ -104,7 +97,7 @@ public class GameService {
         return drawnCard;
     }
 
-    public Game placeCard(Long gameId, Long playerId, Long cardId, int position) {
+    public GamePlacementResult placeCard(Long gameId, Long playerId, Long cardId, int position) {
         Objects.requireNonNull(gameId, "gameId must not be null");
         Objects.requireNonNull(playerId, "playerId must not be null");
         Objects.requireNonNull(cardId, "cardId must not be null");
@@ -114,12 +107,17 @@ public class GameService {
         Card card = cardRepository.findById(cardId).orElseThrow(() -> new RuntimeException("Card not found"));
 
         boolean isValidPlacement = validateCardPlacement(player, card, position);
+        String message;
         if (isValidPlacement) {
             player.addCardToTimeline(card, position);
+            message = "Card placed correctly";
+        } else {
+            message = "Card placed incorrectly";
         }
 
         playerRepository.save(player);
-        return game;
+        List<CardDTO> timeline = player.getTimeline().stream().map(cardService::convertToDTO).toList();
+        return new GamePlacementResult(gameId, isValidPlacement, timeline, message);
     }
 
     private boolean validateCardPlacement(Player player, Card card, int position) {

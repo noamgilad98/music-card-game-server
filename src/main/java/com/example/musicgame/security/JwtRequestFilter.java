@@ -1,6 +1,5 @@
 package com.example.musicgame.security;
 
-import com.example.musicgame.service.UserService;
 import com.example.musicgame.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,14 +49,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-
+                System.out.println("JWT token is valid for user: " + username);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            } else {
+                System.out.println("Invalid JWT token for user: " + username);
+            }
+        } else {
+            if (username == null) {
+                System.out.println("Username extracted from token is null");
+            } else {
+                System.out.println("User is already authenticated");
             }
         }
+
         chain.doFilter(request, response);
     }
 }
