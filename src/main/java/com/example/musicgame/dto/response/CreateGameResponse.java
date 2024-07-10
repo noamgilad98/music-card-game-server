@@ -1,30 +1,34 @@
 package com.example.musicgame.dto.response;
 
 import com.example.musicgame.dto.model.PlayerDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class CreateGameResponse {
+
+    // Getters and setters
+    @JsonProperty("gameId")
     private Long gameId;
+
+    @JsonProperty("status")
     private String status;
+
+    @JsonProperty("creator")
     private PlayerDTO creator;
 
-    public CreateGameResponse(String errorCreatingGame) {
-        this.status = errorCreatingGame;
-    }
+    @JsonProperty("message")
+    private String message;
 
+    // Default constructor for JSON deserialization
     public CreateGameResponse() {
     }
 
-    public void setGameId(Long id) {
-        this.gameId = id;
+    // Constructor for error message
+    public CreateGameResponse(String message) {
+        this.message = message;
     }
 
-    public void setStatus(String string) {
-        this.status = string;
-    }
-
-    public void setCreator(PlayerDTO playerDTO) {
-        this.creator = playerDTO;
-    }
-
-    // Getters and setters
 }

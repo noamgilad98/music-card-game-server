@@ -1,4 +1,4 @@
-package com.example.musicgame.test.controller;
+package com.example.musicgame.test.service;
 
 import com.example.musicgame.model.*;
 import com.example.musicgame.repository.*;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,11 +54,10 @@ class GameServiceTest {
     void testCreateGame() {
         User user = new User("username", "password");
         Player player = new Player(user);
-        Deck deck = new Deck();
         when(jwtUtil.getUsernameFromToken(anyString())).thenReturn("username");
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
         when(playerService.createPlayer(any(User.class))).thenReturn(player);
-        when(deckService.createDeck(anyList())).thenReturn(deck);
+        when(deckService.createDeck(anyList())).thenReturn(new Deck());
         when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Game game = gameService.createGame("Bearer token");
@@ -79,12 +77,16 @@ class GameServiceTest {
     @Test
     void testStartGame() {
         Game game = new Game();
+        Player player = new Player();
+        player.setId(1L);  // Set the player ID
+        game.addPlayer(player);
+
         when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game));
-        when(deckService.createDeck(anyList())).thenReturn(new Deck());
         when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Game startedGame = gameService.startGame(1L);
         assertEquals(GameState.STARTED, startedGame.getGameState());
+        assertNotNull(startedGame.getCurrentPlayer());
     }
 
     @Test
@@ -115,6 +117,7 @@ class GameServiceTest {
     void testDrawCard() {
         Game game = new Game();
         Player player = new Player();
+        player.setId(1L);  // Set the player ID
         Card card = new Card("Artist", "Preview URL", "Song Title", "Spotify ID", 2020);
         game.addPlayer(player);
         game.setDeck(new Deck(Set.of(card)));
@@ -130,6 +133,7 @@ class GameServiceTest {
     void testDrawCardFromEmptyDeck() {
         Game game = new Game();
         Player player = new Player();
+        player.setId(1L);  // Set the player ID
         game.addPlayer(player);
 
         when(gameRepository.findById(anyLong())).thenReturn(Optional.of(game));

@@ -2,8 +2,13 @@ package com.example.musicgame.dto.request;
 
 import com.example.musicgame.model.Card;
 import com.example.musicgame.model.Player;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class PlaceCardRequest {
+    // Getters and setters
     private Player player;
     private Card card;
     private int position;
@@ -15,31 +20,6 @@ public class PlaceCardRequest {
     public PlaceCardRequest(Player player, Card card, int position) {
         this.player = player;
         this.card = card;
-        this.position = position;
-    }
-
-    // Getters and setters
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Card getCard() {
-        return card;
-    }
-
-    public void setCard(Card card) {
-        this.card = card;
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
         this.position = position;
     }
 

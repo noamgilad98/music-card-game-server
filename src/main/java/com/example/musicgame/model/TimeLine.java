@@ -1,13 +1,19 @@
 package com.example.musicgame.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Setter
+@Getter
 @Entity
 public class TimeLine {
 
+    // Getters and setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,23 +31,6 @@ public class TimeLine {
     }
 
     public TimeLine(List<Card> cards) {
-        this.cards = cards;
-    }
-
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public List<Card> getCards() {
-        return cards;
-    }
-
-    public void setCards(List<Card> cards) {
         this.cards = cards;
     }
 

@@ -59,10 +59,14 @@ public class GameService {
 
     public Game startGame(Long gameId) {
         Game game = getGameById(gameId);
+        if (game.getPlayers().isEmpty()) {
+            throw new RuntimeException("Cannot start game without players");
+        }
         game.setGameState(GameState.STARTED);
         game.setCurrentPlayer(game.getPlayers().iterator().next());
         return gameRepository.save(game);
     }
+
 
     public Game addPlayerToGame(Long gameId, User user) {
         Game game = getGameById(gameId);

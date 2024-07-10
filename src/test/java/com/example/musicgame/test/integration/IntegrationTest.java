@@ -1,10 +1,11 @@
 package com.example.musicgame.test.integration;
 
+import com.example.musicgame.dto.response.CreateGameResponse;
 import com.example.musicgame.model.Game;
 import com.example.musicgame.model.User;
-import com.example.musicgame.model.GameState;
 import com.example.musicgame.repository.*;
 import com.example.musicgame.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IntegrationTest {
@@ -61,7 +60,6 @@ public class IntegrationTest {
     @Test
     public void testUserRegistrationAndGameFlow() {
         // Register users
-        //random username
         Random rand = new Random();
         int upperbound = 1000000;
         User user1 = new User("user" + rand.nextInt(upperbound), "password1");
@@ -87,16 +85,16 @@ public class IntegrationTest {
         System.out.println("Token2: " + token2);
 
         // Start a game
-        Game game = new Game();
-        game.setGameState(GameState.CREATED);  // Set initial state
-        HttpEntity<Game> gameRequest = new HttpEntity<>(game, createHeaders(token1));
-        ResponseEntity<Game> gameResponse = restTemplate.postForEntity("http://localhost:" + port + "/game/create", gameRequest, Game.class);
+
+        HttpEntity<Game> gameRequest = new HttpEntity<>(createHeaders(token1));
+        ResponseEntity<CreateGameResponse> gameResponse = restTemplate.postForEntity("http://localhost:" + port + "/game/create", gameRequest, CreateGameResponse.class);
 
         assertThat(gameResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(gameResponse.getBody()).isNotNull();
 
-        Long gameId = gameResponse.getBody().getId();
+        Long gameId = gameResponse.getBody().getGameId();
 
+        assertThat(gameId).isNotNull();  // Ensure the game ID is not null
 
         ResponseEntity<Game> addUserResponse2 = addPlayerToGame(gameId, token2, user2);
 
@@ -108,6 +106,7 @@ public class IntegrationTest {
         assertThat(gameStatusResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(Objects.requireNonNull(gameStatusResponse.getBody()).getPlayers().size()).isEqualTo(2);
     }
+
 
     private ResponseEntity<String> registerUser(User user) {
         return restTemplate.postForEntity("http://localhost:" + port + "/auth/register", user, String.class);

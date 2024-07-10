@@ -1,8 +1,13 @@
 package com.example.musicgame.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.*;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "game")
 public class Game {
@@ -36,7 +41,6 @@ public class Game {
 
     private int currentPlayerIndex;
 
-
     public Game() {
     }
 
@@ -45,46 +49,6 @@ public class Game {
         this.gameState = gameState;
         this.players = new LinkedHashSet<>();
         this.creator = creator;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Deck getDeck() {
-        return deck;
-    }
-
-    public void setDeck(Deck deck) {
-        this.deck = deck;
-    }
-
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
-    }
-
-    public Player getCreator() {
-        return creator;
-    }
-
-    public void setCreator(Player creator) {
-        this.creator = creator;
-    }
-
-    public Set<Player> getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(Set<Player> players) {
-        this.players = players;
     }
 
     public void addPlayer(Player player) {
@@ -103,13 +67,6 @@ public class Game {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.stream().skip(currentPlayerIndex).findFirst().get();
         return currentPlayer;
-    }
-
-    public void setCurrentPlayer(Player next) {
-    }
-
-    public User getCurrentPlayer() {
-        return null;
     }
 
     public Map<Long, List<Card>> getTimelines() {
