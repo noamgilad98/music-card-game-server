@@ -1,7 +1,6 @@
 package com.example.musicgame.dto.request;
 
-import com.example.musicgame.model.Card;
-import com.example.musicgame.model.Player;
+import com.example.musicgame.dto.model.CardDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,16 +8,16 @@ import lombok.Setter;
 @Getter
 public class PlaceCardRequest {
     // Getters and setters
-    private Player player;
-    private Card card;
+    private String token;
+    private CardDTO card;
     private int position;
 
     // Default constructor
     public PlaceCardRequest() {}
 
     // Parameterized constructor
-    public PlaceCardRequest(Player player, Card card, int position) {
-        this.player = player;
+    public PlaceCardRequest(String token, CardDTO card, int position) {
+        this.token = token;
         this.card = card;
         this.position = position;
     }
@@ -26,7 +25,7 @@ public class PlaceCardRequest {
     @Override
     public String toString() {
         return "PlaceCardRequest{" +
-                "player=" + player +
+                "token='" + token +
                 ", card=" + card +
                 ", position=" + position +
                 '}';

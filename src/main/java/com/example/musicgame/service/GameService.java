@@ -18,29 +18,31 @@ import java.util.Optional;
 @Service
 public class GameService {
 
-    @Autowired
     private GameRepository gameRepository;
-
-    @Autowired
     private PlayerRepository playerRepository;
-
-    @Autowired
     private CardRepository cardRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private DeckService deckService;
-
-    @Autowired
     private PlayerService playerService;
-
-    @Autowired
+    private CardService cardService;
     private JwtUtil jwtUtil;
 
     @Autowired
-    private CardService cardService;
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, CardRepository cardRepository, UserRepository userRepository, DeckService deckService, PlayerService playerService, CardService cardService, JwtUtil jwtUtil) {
+        this.gameRepository = gameRepository;
+        this.playerRepository = playerRepository;
+        this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
+        this.deckService = deckService;
+        this.playerService = playerService;
+        this.cardService = cardService;
+        this.jwtUtil = jwtUtil;
+    }
+
+
+    public GameService() {
+
+    }
 
     public Game createGame(String token) {
         String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
@@ -48,19 +50,24 @@ public class GameService {
         Player player = playerService.createPlayer(user);
         Deck deck = deckService.createDeck(cardRepository.findAll());
         Game createdGame = new Game(deck, GameState.CREATED, player);
-        gameRepository.save(createdGame);
+        gameRepository.save(createdGame); // Save to generate ID
         createdGame.addPlayer(player);
-        return gameRepository.save(createdGame);
+        return gameRepository.save(createdGame); // Save again to persist changes
     }
 
     public Game getGameById(Long gameId) {
         return gameRepository.findById(gameId).orElseThrow(() -> new RuntimeException("Game not found"));
     }
 
-    public Game startGame(Long gameId) {
+    public Game startGame(Long gameId, String token) {
+        String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         Game game = getGameById(gameId);
         if (game.getPlayers().isEmpty()) {
             throw new RuntimeException("Cannot start game without players");
+        }
+        if(!game.getCreator().getUser().equals(user)) {
+            throw new RuntimeException("Only the creator of the game can start the game");
         }
         game.setGameState(GameState.STARTED);
         game.setCurrentPlayer(game.getPlayers().iterator().next());
@@ -68,8 +75,10 @@ public class GameService {
     }
 
 
-    public Game addPlayerToGame(Long gameId, User user) {
+    public Game addPlayerToGame(Long gameId, String token) {
         Game game = getGameById(gameId);
+        String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         Player player = playerService.createPlayer(user); // Create player
         game.addPlayer(player);
         return gameRepository.save(game);
@@ -81,10 +90,13 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public Card drawCard(Long gameId, Long playerId) {
+    public Card drawCard(Long gameId, String token) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
 
+        String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        long playerId = user.getPlayer(gameId).getId();
         game.getPlayers().stream()
                 .filter(p -> p.getId().equals(playerId))
                 .findFirst()
@@ -101,10 +113,13 @@ public class GameService {
         return drawnCard;
     }
 
-    public GamePlacementResult placeCard(Long gameId, Long playerId, Long cardId, int position) {
+    public GamePlacementResult placeCard(Long gameId, String token, Long cardId, int position) {
         Objects.requireNonNull(gameId, "gameId must not be null");
-        Objects.requireNonNull(playerId, "playerId must not be null");
+        Objects.requireNonNull(token, "token must not be null");
         Objects.requireNonNull(cardId, "cardId must not be null");
+        String username = jwtUtil.getUsernameFromToken(token.substring(7)); // Remove "Bearer " prefix
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        long playerId = user.getPlayer(gameId).getId();
 
         Game game = getGameById(gameId);
         Player player = playerRepository.findById(playerId).orElseThrow(() -> new RuntimeException("Player not found"));

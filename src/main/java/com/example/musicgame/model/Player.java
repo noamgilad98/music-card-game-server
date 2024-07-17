@@ -51,4 +51,13 @@ public class Player {
     public void addCardToTimeline(Card card, int position) {
         timeLine.addCardAtPosition(card, position);
     }
+
+    public Game getGame(Long gameId) {
+        for (Game game : games) {
+            if (game.getId().equals(gameId)) {
+                return game;
+            }
+        }
+        return null;
+    }
 }

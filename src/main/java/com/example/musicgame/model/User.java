@@ -74,4 +74,11 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public Player getPlayer(Long gameId) {
+        return players.stream()
+                .filter(player -> player.getGame(gameId).getId().equals(gameId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Player not found"));
+    }
 }

@@ -1,16 +1,15 @@
 package com.example.musicgame.controller;
 
-import com.example.musicgame.dto.request.PlaceCardRequest;
 import com.example.musicgame.dto.model.CardDTO;
 import com.example.musicgame.dto.model.GameDTO;
 import com.example.musicgame.dto.model.PlayerDTO;
+import com.example.musicgame.dto.request.PlaceCardRequest;
 import com.example.musicgame.dto.response.CreateGameResponse;
 import com.example.musicgame.dto.response.GamePlacementResult;
 import com.example.musicgame.dto.response.StartGameResponse;
 import com.example.musicgame.model.Card;
 import com.example.musicgame.model.Game;
 import com.example.musicgame.model.Player;
-import com.example.musicgame.model.User;
 import com.example.musicgame.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,9 +53,9 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/start")
-    public ResponseEntity<StartGameResponse> startGame(@PathVariable Long gameId) {
+    public ResponseEntity<StartGameResponse> startGame(@PathVariable Long gameId, @RequestHeader("Authorization") String token){
         try {
-            Game startedGame = gameService.startGame(gameId);
+            Game startedGame = gameService.startGame(gameId, token);
             StartGameResponse response = new StartGameResponse();
             response.setGameId(startedGame.getId());
             response.setStatus(startedGame.getGameState().toString());
@@ -68,8 +67,8 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/addPlayer")
-    public ResponseEntity<GameDTO> addPlayerToGame(@PathVariable Long gameId, @RequestBody User user) {
-        Game updatedGame = gameService.addPlayerToGame(gameId, user);
+    public ResponseEntity<GameDTO> addPlayerToGame(@PathVariable Long gameId, @RequestHeader("Authorization") String token) {
+        Game updatedGame = gameService.addPlayerToGame(gameId, token);
         return ResponseEntity.ok(convertToDTO(updatedGame));
     }
 
@@ -80,14 +79,16 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/drawCard")
-    public ResponseEntity<CardDTO> drawCard(@PathVariable Long gameId, @RequestBody Player player) {
-        Card drawnCard = gameService.drawCard(gameId, player.getId());
+    public ResponseEntity<CardDTO> drawCard(@PathVariable Long gameId, @RequestHeader("Authorization") String token) {
+        Card drawnCard = gameService.drawCard(gameId, token);
         return ResponseEntity.ok(convertToDTO(drawnCard));
     }
 
     @PostMapping("/{gameId}/placeCard")
     public ResponseEntity<GamePlacementResult> placeCard(@PathVariable Long gameId, @RequestBody PlaceCardRequest request) {
-        GamePlacementResult result = gameService.placeCard(gameId, request.getPlayer().getId(), request.getCard().getId(), request.getPosition());
+        String token = request.getToken();
+
+        GamePlacementResult result = gameService.placeCard(gameId, token, request.getCard().getId(), request.getPosition());
         return ResponseEntity.ok(result);
     }
 

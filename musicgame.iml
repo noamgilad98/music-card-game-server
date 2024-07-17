@@ -6,7 +6,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" value="123c5c84-b195-4361-9aa4-629296be96fb" />
+          <factory-entry name="entityManagerFactory" value="984dd675-d818-4b54-8ad1-b42b2b2dfca6" />
           <factory-entry name="musicgame" value="143615fd-a959-4a9b-91c7-2c5deabfcc06" />
         </datasource-mapping>
         <naming-strategy-map />

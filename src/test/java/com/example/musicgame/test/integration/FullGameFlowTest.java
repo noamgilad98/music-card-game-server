@@ -1,12 +1,17 @@
 package com.example.musicgame.test.integration;
 
+import com.example.musicgame.dto.model.CardDTO;
+import com.example.musicgame.dto.model.GameDTO;
 import com.example.musicgame.dto.request.PlaceCardRequest;
+import com.example.musicgame.dto.response.CreateGameResponse;
+import com.example.musicgame.dto.response.StartGameResponse;
 import com.example.musicgame.model.*;
 import com.example.musicgame.repository.CardRepository;
 import com.example.musicgame.repository.DeckRepository;
 import com.example.musicgame.repository.GameRepository;
 import com.example.musicgame.repository.UserRepository;
 import com.example.musicgame.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +21,16 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class FullGameFlowTest {
 
     @LocalServerPort
@@ -50,17 +55,7 @@ public class FullGameFlowTest {
 
     @BeforeEach
     void setUp() {
-        // Clear all cards related to decks first to avoid constraint violation
-        cardRepository.findAll().forEach(card -> {
-            cardRepository.save(card);
-        });
-
-        // Delete all users, games, decks, and cards
-        userRepository.deleteAll();
-        gameRepository.deleteAll();
-        deckRepository.deleteAll();
-        cardRepository.deleteAll();
-
+        cardRepository.saveAll(cardRepository.findAll());
         this.restTemplate = new RestTemplate();
     }
 
@@ -93,25 +88,32 @@ public class FullGameFlowTest {
         // Start a game
         HttpHeaders headers = createHeaders(token1);
         HttpEntity<Void> gameRequest = new HttpEntity<>(headers);
-        ResponseEntity<Game> gameResponse = restTemplate.postForEntity("http://localhost:" + port + "/game/create", gameRequest, Game.class);
+        ResponseEntity<CreateGameResponse> gameResponse = restTemplate.postForEntity("http://localhost:" + port + "/game/create", gameRequest, CreateGameResponse.class);
 
         assertThat(gameResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(gameResponse.getBody()).isNotNull();
 
-        Long gameId = gameResponse.getBody().getId();
+        Long gameId = gameResponse.getBody().getGameId();
 
         // Add player 2 to game
-        ResponseEntity<Game> addUserResponse2 = addPlayerToGame(gameId, token2, user2);
+        headers = createHeaders(token2);
+        HttpEntity<User> addUserRequest2 = new HttpEntity<>(headers);
+        ResponseEntity<GameDTO> addUserResponse2 = restTemplate.postForEntity("http://localhost:" + port + "/game/" + gameId + "/addPlayer", addUserRequest2, GameDTO.class);
+
 
         assertThat(addUserResponse2.getStatusCodeValue()).isEqualTo(200);
 
         // Start the game
-        ResponseEntity<Game> startGameResponse = startGame(gameId, token1);
+        headers = createHeaders(token1);
+        HttpEntity<Void> startGameRequest = new HttpEntity<>(headers);
+        ResponseEntity<StartGameResponse> startGameResponse = restTemplate.exchange("http://localhost:" + port + "/game/" + gameId + "/start", HttpMethod.POST, startGameRequest, StartGameResponse.class);
+
+
         assertThat(startGameResponse.getStatusCodeValue()).isEqualTo(200);
-        assertThat(Objects.requireNonNull(startGameResponse.getBody()).getGameState()).isEqualTo(GameState.STARTED);
+        assertThat(Objects.requireNonNull(startGameResponse.getBody()).getStatus()).isEqualTo(GameState.STARTED.toString());
 
         // Verify game status
-        ResponseEntity<Game> gameStatusResponse = restTemplate.exchange("http://localhost:" + port + "/game/" + gameId, HttpMethod.GET, new HttpEntity<>(createHeaders(token1)), Game.class);
+        ResponseEntity<GameDTO> gameStatusResponse = restTemplate.exchange("http://localhost:" + port + "/game/" + gameId, HttpMethod.GET, new HttpEntity<>(createHeaders(token1)), GameDTO.class);
 
         assertThat(gameStatusResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(Objects.requireNonNull(gameStatusResponse.getBody()).getPlayers().size()).isEqualTo(2);
@@ -120,9 +122,9 @@ public class FullGameFlowTest {
         boolean someoneWon = false;
         while (!someoneWon) {
             // Player 1 draws a card
-            ResponseEntity<Card> drawCardResponse = drawCard(gameId, token1, user1);
+            ResponseEntity<CardDTO> drawCardResponse = drawCard(gameId, token1);
             assertThat(drawCardResponse.getStatusCodeValue()).isEqualTo(200);
-            Card card = drawCardResponse.getBody();
+            CardDTO card = drawCardResponse.getBody();
             assertThat(card).isNotNull(); // Ensure the card is not null before placing it
 
             ResponseEntity<Game> placeCardResponse1 = placeCard(gameId, token1, user1, card);
@@ -136,9 +138,9 @@ public class FullGameFlowTest {
             }
 
             // Player 2 draws a card
-            ResponseEntity<Card> drawCardResponse2 = drawCard(gameId, token2, user2);
+            ResponseEntity<CardDTO> drawCardResponse2 = drawCard(gameId, token2);
             assertThat(drawCardResponse2.getStatusCodeValue()).isEqualTo(200);
-            Card card2 = drawCardResponse2.getBody();
+            CardDTO card2 = drawCardResponse2.getBody();
 
             // Player 2 places the card
             ResponseEntity<Game> placeCardResponse2 = placeCard(gameId, token2, user2, card2);
@@ -155,6 +157,7 @@ public class FullGameFlowTest {
         ResponseEntity<Game> endGameResponse = endGame(gameId, token1);
         assertThat(endGameResponse.getStatusCodeValue()).isEqualTo(200);
         assertThat(Objects.requireNonNull(endGameResponse.getBody()).getGameState()).isEqualTo(GameState.ENDED);
+
     }
 
     private ResponseEntity<String> registerUser(User user) {
@@ -190,20 +193,23 @@ public class FullGameFlowTest {
         return restTemplate.exchange("http://localhost:" + port + "/game/" + gameId + "/end", HttpMethod.POST, new HttpEntity<>(headers), Game.class);
     }
 
-    private ResponseEntity<Card> drawCard(Long gameId, String token, User user) {
+    private ResponseEntity<CardDTO> drawCard(Long gameId, String token) {
         HttpHeaders headers = createHeaders(token);
-        headers.set("Content-Type", "application/json");
-        Player player = findPlayerByUserAndGame(gameId, token, user);
-        HttpEntity<Player> drawCardRequest = new HttpEntity<>(player, headers);
-        return restTemplate.postForEntity("http://localhost:" + port + "/game/" + gameId + "/drawCard", drawCardRequest, Card.class);
+        HttpEntity<User> drawCardRequest = new HttpEntity<>(headers);
+        ResponseEntity <CardDTO> drawCardResponse = restTemplate.postForEntity("http://localhost:" + port + "/game/" + gameId + "/drawCard", drawCardRequest, CardDTO.class);
+        return drawCardResponse;
     }
 
-    private ResponseEntity<Game> placeCard(Long gameId, String token, User user, Card card) {
+
+    private ResponseEntity<Game> placeCard(Long gameId, String token, User user, CardDTO card) {
         HttpHeaders headers = createHeaders(token);
         headers.set("Content-Type", "application/json");
-        Player player = findPlayerByUserAndGame(gameId, token, user);
-        PlaceCardRequest placeCardRequest = new PlaceCardRequest(player, card, 0);
-        return restTemplate.postForEntity("http://localhost:" + port + "/game/" + gameId + "/placeCard", new HttpEntity<>(placeCardRequest, headers), Game.class);
+        PlaceCardRequest placeCardRequest = new PlaceCardRequest();
+        placeCardRequest.setToken(token);
+        placeCardRequest.setCard(card);
+        placeCardRequest.setPosition(0); // Replace with actual position
+        HttpEntity<PlaceCardRequest> placeCardRequestEntity = new HttpEntity<>(placeCardRequest, headers);
+        return restTemplate.postForEntity("http://localhost:" + port + "/game/" + gameId + "/placeCard", placeCardRequestEntity, Game.class);
     }
 
     private boolean checkWinCondition(Game game) {

@@ -1,9 +1,14 @@
 package com.example.musicgame.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class StartGameResponse {
 
+    // Getters and setters
     @JsonProperty("gameId")
     private Long gameId;
 
@@ -25,36 +30,4 @@ public class StartGameResponse {
         this.message = message;
     }
 
-    // Getters and setters
-    public Long getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getCurrentTurnPlayerId() {
-        return currentTurnPlayerId;
-    }
-
-    public void setCurrentTurnPlayerId(String currentTurnPlayerId) {
-        this.currentTurnPlayerId = currentTurnPlayerId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
